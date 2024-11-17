@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copy Trade Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind for dark mode by default
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
+</head>
+<body class="bg-gray-900 text-gray-100 p-4 flex justify-center items-center min-h-screen">
+  <div class="bg-gray-800 text-gray-100 p-6 rounded-lg shadow-md max-w-md w-full">
+    <!-- Form -->
+    <h1 class="text-xl font-semibold text-gray-100 mb-4">Copy Trade Calculator</h1>
+    <form id="bidForm" class="space-y-4">
+      <!-- Master Wallet Input -->
+      <div>
+        <label for="masterWallet" class="block text-sm font-medium">Saldo Master Trade</label>
+        <input type="number" id="masterWallet" step="any" class="w-full p-2 border rounded-md bg-gray-700 border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter master wallet balance" required>
+      </div>
+      
+      <!-- My Wallet Input -->
+      <div>
+        <label for="myWallet" class="block text-sm font-medium">Saldo Gwe</label>
+        <input type="number" id="myWallet" step="any" class="w-full p-2 border rounded-md bg-gray-700 border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter my wallet balance" required>
+      </div>
+      
+      <!-- Master Wallet Bid -->
+      <div>
+        <label for="masterBid" class="block text-sm font-medium">Jumlah Trade </label>
+        <input type="number" id="masterBid" step="any" class="w-full p-2 border rounded-md bg-gray-700 border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter master wallet bid" required>
+      </div>
+      
+      <!-- Results -->
+      <div class="bg-gray-700 p-4 rounded-md shadow-inner space-y-2">
+        <!-- My Wallet Bid Result -->
+        <p class="text-sm">Gwe Trade Sebesar:</p>
+        <p id="myBid" class="text-lg font-semibold text-blue-400">$0.0000 SOL</p>
+
+        <!-- Master Wallet Percentage Result -->
+        <p class="text-sm">Persen Trade Master:</p>
+        <p id="masterPercentage" class="text-lg font-semibold text-green-400">0.00%</p>
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="button" onclick="calculateBid()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-500 transition">
+        Calculate
+      </button>
+    </form>
+  </div>
+
+  <script>
+    // Function to save inputs to session storage
+    function saveInputs() {
+      const masterWallet = document.getElementById('masterWallet').value;
+      const myWallet = document.getElementById('myWallet').value;
+      const masterBid = document.getElementById('masterBid').value;
+
+      sessionStorage.setItem('masterWallet', masterWallet);
+      sessionStorage.setItem('myWallet', myWallet);
+      sessionStorage.setItem('masterBid', masterBid);
+    }
+
+    // Function to load inputs from session storage
+    function loadInputs() {
+      document.getElementById('masterWallet').value = sessionStorage.getItem('masterWallet') || '';
+      document.getElementById('myWallet').value = sessionStorage.getItem('myWallet') || '';
+      document.getElementById('masterBid').value = sessionStorage.getItem('masterBid') || '';
+    }
+
+    // Function to calculate bid
+    function calculateBid() {
+      const masterWallet = parseFloat(document.getElementById('masterWallet').value) || 0;
+      const myWallet = parseFloat(document.getElementById('myWallet').value) || 0;
+      const masterBid = parseFloat(document.getElementById('masterBid').value) || 0;
+
+      // Save inputs to session
+      saveInputs();
+
+      // Avoid division by zero
+      if (masterWallet === 0) {
+        document.getElementById('myBid').textContent = "$0.0000 SOL";
+        document.getElementById('masterPercentage').textContent = "0.00%";
+        return;
+      }
+
+      // Calculate percentage and result
+      const myBid = masterBid * (myWallet / masterWallet);
+      const masterPercentage = (masterBid / masterWallet) * 100;
+
+      // Format results with dynamic precision for small values
+      let formattedBid;
+      if (myBid < 0.01) {
+        formattedBid = myBid.toFixed(6); // Show up to 6 decimals for small numbers
+      } else {
+        formattedBid = myBid.toFixed(4); // Default to 4 decimals for typical values
+      }
+
+      // Update the result display
+      document.getElementById('myBid').textContent = `$${formattedBid} SOL`;
+      document.getElementById('masterPercentage').textContent = `${masterPercentage.toFixed(2)}%`;
+    }
+
+    // Load inputs when the page is loaded
+    document.addEventListener('DOMContentLoaded', loadInputs);
+  </script>
+</body>
+</html>
